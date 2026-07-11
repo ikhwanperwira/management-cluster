@@ -1,0 +1,87 @@
+apiVersion: batch/v1
+kind: Job
+
+metadata:
+  name: rclone-00c3-8200-backup
+  namespace: default
+
+spec:
+  backoffLimit: 5
+  template:
+    spec:
+      restartPolicy: Never
+      nodeSelector:
+        kubernetes.io/hostname: onprem-sea-00
+
+      containers:
+        - name: rclone
+          image: rclone/rclone:latest
+          env:
+            - name: RCLONE_CONFIG
+              value: /config/rclone/rclone.conf
+          command:
+            - rclone
+          args:
+            - copy
+            - /source
+            - gd-ikhwanperwira:BACKUP MICROSD/00C3-8200
+
+            - --progress
+            - --create-empty-src-dirs
+
+            - --fast-list
+
+            - --transfers
+            - "8"
+
+            - --checkers
+            - "16"
+
+            - --drive-chunk-size
+            - 16M
+
+            - --retries
+            - "10"
+
+            - --low-level-retries
+            - "20"
+
+            - --retries-sleep
+            - 10s
+
+            - --timeout
+            - 10m
+
+            - --contimeout
+            - 60s
+
+            - --log-file
+            - /logs/00C3-8200-backup.log
+
+            - --log-level
+            - INFO
+
+          volumeMounts:
+            - name: rclone-config
+              mountPath: /config/rclone
+              readOnly: true
+
+            - name: microsd
+              mountPath: /source
+              readOnly: true
+
+            - name: logs
+              mountPath: /logs
+
+      volumes:
+        - name: rclone-config
+          secret:
+            secretName: rclone-config
+        - name: microsd
+          hostPath:
+            path: /mnt/microsd-00C3-8200
+            type: Directory
+        - name: logs
+          hostPath:
+            path: /var/log/rclone
+            type: DirectoryOrCreate
