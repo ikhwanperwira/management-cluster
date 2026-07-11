@@ -4,6 +4,8 @@ kind: Job
 metadata:
   name: rclone-00c3-8200-backup
   namespace: default
+  annotations:
+    kustomize.toolkit.fluxcd.io/force: enabled
 
 spec:
   backoffLimit: 5
