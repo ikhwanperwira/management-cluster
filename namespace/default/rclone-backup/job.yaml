@@ -26,7 +26,10 @@ spec:
             - /source
             - gd-ikhwanperwira:BACKUP MICROSD/00C3-8200
 
-            - --progress
+            - --stats
+            - 30s
+            - --stats-one-line
+
             - --create-empty-src-dirs
 
             - --fast-list
@@ -55,9 +58,6 @@ spec:
             - --contimeout
             - 60s
 
-            - --log-file
-            - /logs/00C3-8200-backup.log
-
             - --log-level
             - INFO
 
@@ -70,9 +70,6 @@ spec:
               mountPath: /source
               readOnly: true
 
-            - name: logs
-              mountPath: /logs
-
       volumes:
         - name: rclone-config
           secret:
@@ -81,7 +78,3 @@ spec:
           hostPath:
             path: /mnt/microsd-00C3-8200
             type: Directory
-        - name: logs
-          hostPath:
-            path: /var/log/rclone
-            type: DirectoryOrCreate
