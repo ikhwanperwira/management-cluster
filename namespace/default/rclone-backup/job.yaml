@@ -59,7 +59,7 @@ spec:
             - 60s
 
             - --log-level
-            - INFO
+            - NOTICE
 
           volumeMounts:
             - name: rclone-config
