@@ -1,6 +1,5 @@
 apiVersion: batch/v1
 kind: Job
-
 metadata:
   name: rclone-00c3-8200-backup
   namespace: default
@@ -12,70 +11,81 @@ spec:
   template:
     spec:
       restartPolicy: Never
+
       nodeSelector:
         kubernetes.io/hostname: onprem-sea-00
+
+      initContainers:
+        - name: prepare-rclone-config
+          image: busybox:1.36
+          command:
+            - sh
+            - -c
+            - cp /config-source/rclone.conf /config-writable/rclone.conf &&
+              chmod 600 /config-writable/rclone.conf
+          volumeMounts:
+            - name: rclone-config-secret
+              mountPath: /config-source
+              readOnly: true
+
+            - name: rclone-config-writable
+              mountPath: /config-writable
 
       containers:
         - name: rclone
           image: rclone/rclone:latest
+
           env:
             - name: RCLONE_CONFIG
-              value: /config/rclone/rclone.conf
+              value: /config/rclone.conf
+
           command:
             - rclone
+
           args:
             - copy
             - /source
-            - gd-ikhwanperwira:BACKUP MICROSD/00C3-8200
-
+            - "gd-ikhwanperwira:BACKUP MICROSD/00C3-8200"
             - --stats
             - 30s
             - --stats-one-line
-
             - --create-empty-src-dirs
-
             - --fast-list
-
             - --transfers
             - "8"
-
             - --checkers
             - "16"
-
             - --drive-chunk-size
             - 16M
-
             - --retries
             - "10"
-
             - --low-level-retries
             - "20"
-
             - --retries-sleep
             - 10s
-
             - --timeout
             - 10m
-
             - --contimeout
             - 60s
-
             - --log-level
             - NOTICE
 
           volumeMounts:
-            - name: rclone-config
-              mountPath: /config/rclone
-              readOnly: true
+            - name: rclone-config-writable
+              mountPath: /config
 
             - name: microsd
               mountPath: /source
               readOnly: true
 
       volumes:
-        - name: rclone-config
+        - name: rclone-config-secret
           secret:
             secretName: rclone-config
+
+        - name: rclone-config-writable
+          emptyDir: {}
+
         - name: microsd
           hostPath:
             path: /mnt/microsd-00C3-8200
