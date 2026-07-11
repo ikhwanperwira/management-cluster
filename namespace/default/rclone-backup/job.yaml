@@ -1,114 +1,94 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-name: rclone-00c3-8200-backup
-namespace: default
-annotations:
-kustomize.toolkit.fluxcd.io/force: enabled
+  name: rclone-00c3-8200-backup
+  namespace: default
+  annotations:
+    kustomize.toolkit.fluxcd.io/force: enabled
 
 spec:
-backoffLimit: 5
+  backoffLimit: 5
 
-template:
-spec:
-restartPolicy: Never
+  template:
+    spec:
+      restartPolicy: Never
 
-```
-  nodeSelector:
-    kubernetes.io/hostname: onprem-sea-00
+      nodeSelector:
+        kubernetes.io/hostname: onprem-sea-00
 
-  initContainers:
-    - name: prepare-rclone-config
-      image: busybox:1.36
-      command:
-        - sh
-        - -ec
-        - |
-          echo "Copying rclone config"
-          cp /config-source/rclone.conf /config-writable/rclone.conf
-          chmod 600 /config-writable/rclone.conf
-          echo "Rclone config prepared"
-      volumeMounts:
+      initContainers:
+        - name: prepare-rclone-config
+          image: busybox:1.36
+          command:
+            - sh
+            - -ec
+            - |
+              cp /config-source/rclone.conf /config/rclone.conf
+              chmod 600 /config/rclone.conf
+          volumeMounts:
+            - name: rclone-config-secret
+              mountPath: /config-source
+              readOnly: true
+            - name: rclone-config
+              mountPath: /config
+
+      containers:
+        - name: rclone
+          image: rclone/rclone:latest
+
+          env:
+            - name: RCLONE_CONFIG
+              value: /config/rclone.conf
+
+          command:
+            - rclone
+
+          args:
+            - copy
+            - /source
+            - "gd-ikhwanperwira:BACKUP MICROSD/00C3-8200"
+            - --stats
+            - 30s
+            - --stats-one-line
+            - --stats-log-level
+            - NOTICE
+            - --create-empty-src-dirs
+            - --fast-list
+            - --transfers
+            - "8"
+            - --checkers
+            - "16"
+            - --drive-chunk-size
+            - 16M
+            - --retries
+            - "10"
+            - --low-level-retries
+            - "20"
+            - --retries-sleep
+            - 10s
+            - --timeout
+            - 10m
+            - --contimeout
+            - 60s
+            - --log-level
+            - NOTICE
+
+          volumeMounts:
+            - name: rclone-config
+              mountPath: /config
+            - name: microsd
+              mountPath: /source
+              readOnly: true
+
+      volumes:
         - name: rclone-config-secret
-          mountPath: /config-source
-          readOnly: true
+          secret:
+            secretName: rclone-config
 
-        - name: rclone-config-writable
-          mountPath: /config-writable
-
-  containers:
-    - name: rclone
-      image: rclone/rclone:1.72.0
-
-      env:
-        - name: RCLONE_CONFIG
-          value: /config/rclone.conf
-
-      command:
-        - rclone
-
-      args:
-        - copy
-        - /source
-        - "gd-ikhwanperwira:BACKUP MICROSD/00C3-8200"
-
-        - --stats
-        - 10s
-
-        - --stats-one-line
-
-        - --stats-log-level
-        - NOTICE
-
-        - --create-empty-src-dirs
-
-        - --fast-list
-
-        - --transfers
-        - "8"
-
-        - --checkers
-        - "16"
-
-        - --drive-chunk-size
-        - 16M
-
-        - --retries
-        - "10"
-
-        - --low-level-retries
-        - "20"
-
-        - --retries-sleep
-        - 10s
-
-        - --timeout
-        - 10m
-
-        - --contimeout
-        - 60s
-
-        - --log-level
-        - NOTICE
-
-      volumeMounts:
-        - name: rclone-config-writable
-          mountPath: /config
+        - name: rclone-config
+          emptyDir: {}
 
         - name: microsd
-          mountPath: /source
-          readOnly: true
-
-  volumes:
-    - name: rclone-config-secret
-      secret:
-        secretName: rclone-config
-
-    - name: rclone-config-writable
-      emptyDir: {}
-
-    - name: microsd
-      hostPath:
-        path: /mnt/microsd-00C3-8200
-        type: Directory
-```
+          hostPath:
+            path: /mnt/microsd-00C3-8200
+            type: Directory
