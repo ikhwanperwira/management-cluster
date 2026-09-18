@@ -1,0 +1,41 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: codex-config
+  namespace: codex-system
+data:
+  config.toml: |
+    model = "datadog-adapter"
+    model_provider = "datadog_adapter"
+
+    show_raw_agent_reasoning = true
+    hide_agent_reasoning = false
+
+    web_search = "live"
+    suppress_unstable_features_warning = true
+
+    [features]
+    standalone_web_search = true
+
+    [tools.update_plan]
+    enabled = true
+
+    [sandbox_workspace_write]
+    network_access = true
+
+    [model_providers.datadog_adapter]
+    name = "Datadog Adapter"
+    base_url = "http://codex-adapter.codex-system.svc.cluster.local:9000/v1"
+    wire_api = "responses"
+    requires_openai_auth = false
+    supports_websockets = false
+    supports_standalone_web_search = true
+
+    request_max_retries = 0
+    stream_max_retries = 0
+
+    [model_providers.datadog_adapter.auth]
+    command = "sh"
+    args = ["-c", "printf '%s\\n' 'codex-adapter-model-discovery'"]
+    timeout_ms = 1000
+    refresh_interval_ms = 0
