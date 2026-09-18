@@ -8,3 +8,4 @@ resources:
   - adapter-service.yaml
   - webui-deployment.yaml
   - webui-service.yaml
+  - cloudflared-deployment.yaml
