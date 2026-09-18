@@ -25,7 +25,7 @@ data:
 
     [model_providers.datadog_adapter]
     name = "Datadog Adapter"
-    base_url = "http://codex-adapter.codex-system.svc.cluster.local:9000/v1"
+    base_url = "https://adapter.mip.my.id/v1"
     wire_api = "responses"
     requires_openai_auth = false
     supports_websockets = false

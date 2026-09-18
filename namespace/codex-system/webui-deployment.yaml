@@ -45,6 +45,8 @@ spec:
               value: /home/codex/.codex
             - name: CODEX_WEBUI_PROJECTLESS
               value: "true"
+            - name: CODEX_WEBUI_REVIEW_ROOT
+              value: /workspace
           ports:
             - name: http
               containerPort: 8899
