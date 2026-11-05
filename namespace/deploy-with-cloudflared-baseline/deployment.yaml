@@ -15,6 +15,19 @@ spec:
       labels:
         app: hello-world
     spec:
+      tolerations:
+        - key: node-role.kubernetes.io/control-plane
+          operator: Exists
+          effect: NoSchedule
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: In
+                    values:
+                      - oci-sea-00
       containers:
         - name: nginx
           image: nginx:1.27-alpine
