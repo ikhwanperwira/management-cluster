@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: hello-world
+  namespace: deploy-with-cloudflared-baseline
+data:
+  index.html: |
+    <!doctype html>
+    <html lang="en">
+    <head>
+      <meta charset="utf-8">
+      <title>Deploy With Cloudflared Baseline</title>
+    </head>
+    <body>
+      <h1>Hello from deploy-with-cloudflared-baseline</h1>
+    </body>
+    </html>
