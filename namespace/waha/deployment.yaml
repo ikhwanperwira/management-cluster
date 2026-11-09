@@ -21,10 +21,6 @@ spec:
         - key: node-role.kubernetes.io/control-plane
           operator: Exists
           effect: NoSchedule
-        - key: low-resource
-          operator: Equal
-          value: "true"
-          effect: NoSchedule
       affinity:
         nodeAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
@@ -33,14 +29,14 @@ spec:
                   - key: kubernetes.io/hostname
                     operator: In
                     values:
-                      - gcp-na-00
+                      - oci-sea-00
                   - key: kubernetes.io/arch
                     operator: In
                     values:
-                      - amd64
+                      - arm64
       containers:
         - name: waha
-          image: devlikeapro/waha:latest
+          image: devlikeapro/waha:gows-arm@sha256:c77d6cbdad7ba5dd2647f215018cb8224bb10503ee38b06271179a43eb9bc7
           imagePullPolicy: Always
           ports:
             - name: http
