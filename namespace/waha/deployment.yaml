@@ -1,0 +1,111 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: waha
+  namespace: waha
+  labels:
+    app: waha
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: waha
+  template:
+    metadata:
+      labels:
+        app: waha
+    spec:
+      tolerations:
+        - key: node-role.kubernetes.io/control-plane
+          operator: Exists
+          effect: NoSchedule
+        - key: low-resource
+          operator: Equal
+          value: "true"
+          effect: NoSchedule
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: In
+                    values:
+                      - gcp-na-00
+                  - key: kubernetes.io/arch
+                    operator: In
+                    values:
+                      - amd64
+      containers:
+        - name: waha
+          image: devlikeapro/waha:latest
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: 3000
+          envFrom:
+            - configMapRef:
+                name: waha-config
+          env:
+            - name: WAHA_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: waha-secrets
+                  key: api-key-hash
+            - name: WAHA_DASHBOARD_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: waha-secrets
+                  key: dashboard-password
+            - name: WHATSAPP_SWAGGER_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: waha-secrets
+                  key: swagger-password
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            failureThreshold: 6
+            timeoutSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 60
+            periodSeconds: 30
+            failureThreshold: 3
+            timeoutSeconds: 5
+          startupProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            failureThreshold: 60
+            timeoutSeconds: 5
+          resources:
+            requests:
+              cpu: 100m
+              memory: 192Mi
+            limits:
+              cpu: "1"
+              memory: 512Mi
+          volumeMounts:
+            - name: sessions
+              mountPath: /app/.sessions
+            - name: media
+              mountPath: /app/.media
+      volumes:
+        - name: sessions
+          hostPath:
+            path: /var/lib/waha/sessions
+            type: DirectoryOrCreate
+        - name: media
+          hostPath:
+            path: /var/lib/waha/media
+            type: DirectoryOrCreate

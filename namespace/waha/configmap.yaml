@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: waha-config
+  namespace: waha
+data:
+  WHATSAPP_API_PORT: "3000"
+  WHATSAPP_API_HOSTNAME: "0.0.0.0"
+  WHATSAPP_API_SCHEMA: "http"
+  WAHA_BASE_URL: "http://waha.waha.svc.cluster.local:3000"
+  WHATSAPP_DEFAULT_ENGINE: "GOWS"
+  WAHA_NAMESPACE: "all"
+  WAHA_LOG_FORMAT: "JSON"
+  WAHA_LOG_LEVEL: "info"
+  WAHA_PRINT_QR: "False"
+  WAHA_MEDIA_STORAGE: "LOCAL"
+  WHATSAPP_FILES_LIFETIME: "0"
+  WHATSAPP_FILES_FOLDER: "/app/.media"
+  WAHA_LOCAL_STORE_BASE_DIR: "/app/.sessions"
+  WHATSAPP_API_KEY_EXCLUDE_PATH: "health,ping"
+  WAHA_DASHBOARD_ENABLED: "true"
+  WAHA_DASHBOARD_USERNAME: "waha"
+  WHATSAPP_SWAGGER_ENABLED: "true"
+  WHATSAPP_SWAGGER_USERNAME: "waha"
+  TZ: "Asia/Jakarta"

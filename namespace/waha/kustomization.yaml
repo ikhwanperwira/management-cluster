@@ -3,6 +3,5 @@ kind: Kustomization
 resources:
   - namespace.yaml
   - configmap.yaml
-  - nginx-configmap.yaml
   - deployment.yaml
   - service.yaml
