@@ -36,7 +36,7 @@ spec:
                       - arm64
       containers:
         - name: waha
-          image: devlikeapro/waha:gows-arm@sha256:c77d6cbdad7ba5dd2647f215018cb8224bb10503ee38b06271179a43eb9bc7
+          image: devlikeapro/waha:gows-arm
           imagePullPolicy: Always
           ports:
             - name: http
